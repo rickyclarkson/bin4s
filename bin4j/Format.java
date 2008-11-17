@@ -147,4 +147,9 @@ public final class Format<T>
     {
         return new Format<U>(toT.andThen(toBinary), fromBinary.andThen(toU));
     }
+
+    public <U, V> Format<V> bindAndMap(Function<T, Format<U>> u, Function<Pair<T, U>, V> toV, Function<V, Pair<T, U>> fromV)
+    {
+        return bind(u).map(toV, fromV);
+    }
 }

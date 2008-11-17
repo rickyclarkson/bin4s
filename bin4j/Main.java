@@ -32,7 +32,7 @@ class Main
         equal(personFormat.fromBinary.apply(personFormat.toBinary.apply(person)), person);
 
         //two length-encoded sequences of bytes, with both lengths preceding the sequences.
-        Format<Pair<Pair<Integer, Integer>, Pair<byte[], byte[]>>> twoByteArrays =
+        Format<Pair<byte[], byte[]>> twoByteArrays =
             Format.integer.andThen(Format.integer).bind(new Function<Pair<Integer, Integer>, Format<Pair<byte[], byte[]>>>()
             {
                 public Format<Pair<byte[], byte[]>> apply(final Pair<Integer, Integer> lengths)
@@ -63,9 +63,21 @@ class Main
 
                     return format(toBinary, fromBinary);
                 }
+            }).map(new Function<Pair<Pair<Integer, Integer>, Pair<byte[], byte[]>>, Pair<byte[], byte[]>>()
+            {
+                public Pair<byte[], byte[]> apply(Pair<Pair<Integer, Integer>, Pair<byte[], byte[]>> values)
+                {
+                    return values._2;
+                }
+            },new Function<Pair<byte[], byte[]>, Pair<Pair<Integer, Integer>, Pair<byte[], byte[]>>>()
+            {
+                public Pair<Pair<Integer, Integer>, Pair<byte[], byte[]>> apply(Pair<byte[], byte[]> values)
+                {
+                    return pair(pair(values._1.length, values._2.length), values);
+                }
             });
-
-        for (byte b: twoByteArrays.toByteArray(pair(pair(3, 5), pair(new byte[]{1, 2, 3}, new byte[]{5, 5, 5, 5, 6}))))
+                                                                
+        for (byte b: twoByteArrays.toByteArray(pair(new byte[]{1, 2, 3}, new byte[]{5, 5, 5, 5, 6})))
             System.out.println(b);
 
         
