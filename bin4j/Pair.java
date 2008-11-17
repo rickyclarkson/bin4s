@@ -20,4 +20,9 @@ public class Pair<T, U>
     {
         return ((Pair)other)._1.equals(_1) && ((Pair)other)._2.equals(_2);
     }
+
+    public String toString()
+    {
+        return "("+_1+", "+_2+")";
+    }
 }

@@ -3,6 +3,7 @@ package bin4j;
 import java.nio.ByteBuffer;
 
 import static bin4j.Pair.pair;
+import java.io.UnsupportedEncodingException;
 
 public final class Format<T>
 {
@@ -21,6 +22,51 @@ public final class Format<T>
     }
 
     public static Format<Integer> integer = format(ByteBuffers.putInt, ByteBuffers.getInt);
+
+    public static Format<String> string;
+    static
+    {
+        Function<String, ByteBuffer> toBinary = new Function<String, ByteBuffer>()
+        {
+            public ByteBuffer apply(String s)
+            {
+                byte[] bytes;
+                try
+                {
+                    bytes = s.getBytes("US-ASCII");
+                }
+                catch (UnsupportedEncodingException e)
+                {
+                    throw new RuntimeException(e);
+                }
+                ByteBuffer result = ByteBuffer.allocate(4 + bytes.length);
+                result.putInt(bytes.length);
+                result.put(bytes);
+                result.position(0);
+                return result;
+            }
+        };
+
+        Function<ByteBuffer, String> fromBinary = new Function<ByteBuffer, String>()
+        {
+            public String apply(ByteBuffer b)
+            {
+                int length = b.getInt();
+                byte[] bytes = new byte[length];
+                b.get(bytes);
+                try
+                {
+                    return new String(bytes, "US-ASCII");
+                }
+                catch (UnsupportedEncodingException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+
+        string = new Format<String>(toBinary, fromBinary);
+    }
 
     public byte[] toByteArray(T t)
     {
@@ -96,4 +142,9 @@ public final class Format<T>
             return format(ByteBuffers.wrap, ByteBuffers.array);
         }
     };
+
+    public <U> Format<U> map(Function<T, U> toU, Function<U, T> toT)
+    {
+        return new Format<U>(toT.andThen(toBinary), fromBinary.andThen(toU));
+    }
 }
