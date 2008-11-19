@@ -2,22 +2,33 @@ package bin4j;
 
 import java.nio.ByteBuffer;
 import static bin4j.Pair.pair;
-import static bin4j.Format.format;
+import static bin4j.Tuple3.tuple3;
 
 class Main
 {
+    public static <T, U, V extends U> Function<T, U> contravariant(final Function<T, V> f)
+    {
+        return new Function<T, U>()
+        {
+            public U apply(T t)
+            {
+                return f.apply(t);
+            }
+        };
+    }
+
     public static void main(String[] args)
     {
         //serialising and deserialising a single integer.
-        equal(Format.integer.fromByteArray(Format.integer.toByteArray(5)), 5);
+        equal(ByteBuffers.integer.unapply(ByteBuffers.integer.apply(5)), 5);
 
         //serialising and deserialising a pair of integers.
-        Format<Pair<Integer, Integer>> format = Format.integer.andThen(Format.integer);
-        equal(format.fromByteArray(format.toByteArray(pair(10, 12))), pair(10, 12));
+        Format2<Integer, Integer> format = ByteBuffers.integer.andThen(ByteBuffers.integer);
+        equal(format.unapply(format.apply(pair(10, 12))), pair(10, 12));
 
         //serialising and deserialising a length-encoded sequence of bytes.
-        Format<Pair<Integer, byte[]>> lengthEncodedBytes = Format.integer.bind(Format.byteArray);
-        ByteBuffer buffer = lengthEncodedBytes.toBinary.apply(pair(3, new byte[]{10, 20, 30}));
+        Format2<Integer, byte[]> lengthEncodedBytes = ByteBuffers.integer.bind(ByteBuffers.byteArray);
+        ByteBuffer buffer = lengthEncodedBytes.apply(pair(3, new byte[]{10, 20, 30}));
         buffer.position(0);
         equal(buffer.getInt(), 3);
         equal(buffer.get(), (byte)10);
@@ -26,61 +37,56 @@ class Main
 
         //serialising and deserialising a custom data structure.
         Person person = new Person("Bob", "Hope Lane", new Date(1976, 2, 22));
-        Format<Date> dateFormat = Format.integer.andThen(Format.integer).andThen(Format.integer).map(Date.constructor, Date.destructor);
-        Format<Person> personFormat = Format.string.andThen(Format.string).andThen(dateFormat).map(Person.constructor, Person.destructor);
+        Format<Date> dateFormat = ByteBuffers.integer.andThen(ByteBuffers.integer).andThen(ByteBuffers.integer).map(Date.xmap);
+        Format<Person> personFormat = Format.string.andThen(Format.string).andThen(dateFormat).map(Person.xmap);
 
-        equal(personFormat.fromBinary.apply(personFormat.toBinary.apply(person)), person);
+        equal(personFormat.unapply(personFormat.apply(person)), person);
 
         //two length-encoded sequences of bytes, with both lengths preceding the sequences.
         Format<Pair<byte[], byte[]>> twoByteArrays =
-            Format.integer.andThen(Format.integer).bind(new Function<Pair<Integer, Integer>, Format<Pair<byte[], byte[]>>>()
+            ByteBuffers.integer.andThen(ByteBuffers.integer).bind(new Function2<Integer, Integer, Format<Pair<byte[], byte[]>>>()
             {
-                public Format<Pair<byte[], byte[]>> apply(final Pair<Integer, Integer> lengths)
+                public Format<Pair<byte[], byte[]>> apply(final Integer firstLength, final Integer secondLength)
                 {
-                    Function<Pair<byte[], byte[]>, ByteBuffer> toBinary = new Function<Pair<byte[], byte[]>, ByteBuffer>()
+                    return new Format<Pair<byte[], byte[]>>()
                     {
-                        public ByteBuffer apply(Pair<byte[], byte[]> values)
+                        public ByteBuffer apply(Pair<byte[], byte[]> pair)
                         {
-                            ByteBuffer b = ByteBuffer.allocate(values._1.length+values._2.length);
-                            b.put(values._1);
-                            b.put(values._2);
+                            if (pair._1.length != firstLength || pair._2.length != secondLength)
+                                throw null;
+
+                            ByteBuffer b = ByteBuffer.allocate(firstLength + secondLength);
+                            b.put(pair._1);
+                            b.put(pair._2);
                             b.position(0);
                             return b;
                         }
-                    };
-
-                    Function<ByteBuffer, Pair<byte[], byte[]>> fromBinary = new Function<ByteBuffer, Pair<byte[], byte[]>>()
-                    {
-                        public Pair<byte[], byte[]> apply(ByteBuffer b)
+                    
+                        public Pair<byte[], byte[]> unapply(ByteBuffer buffer)
                         {
-                            byte[] first = new byte[lengths._1];
-                            b.get(first);
-                            byte[] second = new byte[lengths._2];
-                            b.get(second);
+                            byte[] first = new byte[firstLength];
+                            byte[] second = new byte[secondLength];
+                            buffer.get(first);
+                            buffer.get(second);
                             return pair(first, second);
                         }
                     };
+                }
+            }).map(new ExpFunctor3<Integer, Integer, Pair<byte[], byte[]>, Pair<byte[], byte[]>>()
+            {
+                public Pair<byte[], byte[]> apply(Integer firstLength, Integer secondLength, Pair<byte[], byte[]> arrays)
+                {
+                    return arrays;
+                }
 
-                    return format(toBinary, fromBinary);
-                }
-            }).map(new Function<Pair<Pair<Integer, Integer>, Pair<byte[], byte[]>>, Pair<byte[], byte[]>>()
-            {
-                public Pair<byte[], byte[]> apply(Pair<Pair<Integer, Integer>, Pair<byte[], byte[]>> values)
+                public Tuple3<Integer, Integer, Pair<byte[], byte[]>> unapply3(Pair<byte[], byte[]> arrays)
                 {
-                    return values._2;
-                }
-            },new Function<Pair<byte[], byte[]>, Pair<Pair<Integer, Integer>, Pair<byte[], byte[]>>>()
-            {
-                public Pair<Pair<Integer, Integer>, Pair<byte[], byte[]>> apply(Pair<byte[], byte[]> values)
-                {
-                    return pair(pair(values._1.length, values._2.length), values);
+                    return tuple3(arrays._1.length, arrays._2.length, arrays);
                 }
             });
                                                                 
-        for (byte b: twoByteArrays.toByteArray(pair(new byte[]{1, 2, 3}, new byte[]{5, 5, 5, 5, 6})))
+        for (byte b: twoByteArrays.apply(pair(new byte[]{1, 2, 3}, new byte[]{5, 5, 5, 5, 6})).array())
             System.out.println(b);
-
-        
     }
 
     private static <T> void equal(T t, T u)
@@ -103,19 +109,16 @@ class Person
         this.dateOfBirth=dateOfBirth;
     }
 
-    static Function<Pair<Pair<String, String>, Date>, Person> constructor = new Function<Pair<Pair<String, String>, Date>, Person>()
+    static ExpFunctor3<String, String, Date, Person> xmap = new ExpFunctor3<String, String, Date, Person>()
     {
-        public Person apply(Pair<Pair<String, String>, Date> values)
+        public Person apply(String name, String address, Date dateOfBirth)
         {
-            return new Person(values._1._1, values._1._2, values._2);
+            return new Person(name, address, dateOfBirth);
         }
-    };
 
-    static Function<Person, Pair<Pair<String, String>, Date>> destructor = new Function<Person, Pair<Pair<String, String>, Date>>()
-    {
-        public Pair<Pair<String, String>, Date> apply(Person person)
+        public Tuple3<String, String, Date> unapply3(Person person)
         {
-            return pair(pair(person.name, person.address), person.dateOfBirth);
+            return tuple3(person.name, person.address, person.dateOfBirth);
         }
     };
 
@@ -149,19 +152,16 @@ class Date
         this.day= day;
     }
 
-    static Function<Pair<Pair<Integer, Integer>, Integer>, Date> constructor = new Function<Pair<Pair<Integer, Integer>, Integer>, Date>()
+    static ExpFunctor3<Integer, Integer, Integer, Date> xmap = new ExpFunctor3<Integer, Integer, Integer, Date>()
     {
-        public Date apply(Pair<Pair<Integer, Integer>, Integer> values)
+        public Date apply(Integer year, Integer month, Integer day)
         {
-            return new Date(values._1._1, values._1._2, values._2);
+            return new Date(year, month, day);
         }
-    };
 
-    static Function<Date, Pair<Pair<Integer, Integer>, Integer>> destructor = new Function<Date, Pair<Pair<Integer, Integer>, Integer>>()
-    {
-        public Pair<Pair<Integer, Integer>, Integer> apply(Date date)
+        public Tuple3<Integer, Integer, Integer> unapply3(Date date)
         {
-            return pair(pair(date.year, date.month), date.day);
+            return tuple3(date.year, date.month, date.day);
         }
     };
 
