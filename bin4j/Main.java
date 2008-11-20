@@ -17,7 +17,7 @@ class Main
         equal(twoInts.unapply(twoInts.apply(10, 12)), pair(10, 12));
 
         //serialising and deserialising a length-encoded sequence of bytes.  The call to map just makes the Integer disappear from the resulting Format type.
-        Format<byte[]> lengthEncodedBytes = ByteBuffers.integer.bind(ByteBuffers.byteArray).map(new ExpFunctor2<Integer, byte[], byte[]>()
+        Format<byte[]> lengthEncodedBytes = ByteBuffers.integer.bind(ByteBuffers.byteArray).map(new XFunction2<Integer, byte[], byte[]>()
         {
             public byte[] apply(Integer length, byte[] array)
             {
@@ -69,7 +69,7 @@ class Main
                         }
                     };
                 }
-            }).map(new ExpFunctor3<Integer, Integer, Pair<byte[], byte[]>, Pair<byte[], byte[]>>()
+            }).map(new XFunction3<Integer, Integer, Pair<byte[], byte[]>, Pair<byte[], byte[]>>()
             {
                 public Pair<byte[], byte[]> apply(Integer firstLength, Integer secondLength, Pair<byte[], byte[]> arrays)
                 {
@@ -106,7 +106,7 @@ class Person
         this.dateOfBirth=dateOfBirth;
     }
 
-    static ExpFunctor3<String, String, Date, Person> xmap = new ExpFunctor3<String, String, Date, Person>()
+    static XFunction3<String, String, Date, Person> xmap = new XFunction3<String, String, Date, Person>()
     {
         public Person apply(String name, String address, Date dateOfBirth)
         {
@@ -149,7 +149,7 @@ class Date
         this.day= day;
     }
 
-    static ExpFunctor3<Integer, Integer, Integer, Date> xmap = new ExpFunctor3<Integer, Integer, Integer, Date>()
+    static XFunction3<Integer, Integer, Integer, Date> xmap = new XFunction3<Integer, Integer, Integer, Date>()
     {
         public Date apply(Integer year, Integer month, Integer day)
         {

@@ -2,7 +2,7 @@ package bin4j;
 
 import static bin4j.Pair.pair;
 
-public abstract class ExpFunctor3<A, B, C, R> implements ExpFunctor<Pair<Pair<A, B>, C>, R>
+public abstract class XFunction3<A, B, C, R> implements XFunction<Pair<Pair<A, B>, C>, R>
 {
     @Override
     public final R apply(Pair<Pair<A, B>, C> abc)

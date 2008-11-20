@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import static bin4j.Pair.pair;
 import java.io.UnsupportedEncodingException;
 
-public abstract class Format<T> implements ExpFunctor<T, ByteBuffer>
+public abstract class Format<T> implements XFunction<T, ByteBuffer>
 {
     public static Format<String> string = new Format<String>()
     {
@@ -78,7 +78,7 @@ public abstract class Format<T> implements ExpFunctor<T, ByteBuffer>
         };
     }
 
-    public <U> Format<U> map(final ExpFunctor<T, U> xmap)
+    public <U> Format<U> map(final XFunction<T, U> xmap)
     {
         return new Format<U>()
         {
