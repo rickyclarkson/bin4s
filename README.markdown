@@ -1,5 +1,6 @@
+
 Binary Reading and Writing Combinators for Java
-===============================================
+-----------------------------------------------
 
 Binary4J is a combinator library for reading and writing arbitrary file and stream formats.
 
