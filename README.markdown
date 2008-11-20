@@ -1,16 +1,19 @@
 Binary Reading and Writing Combinators for Java
+===============================================
 
 Binary4J is a combinator library for reading and writing arbitrary file and stream formats.
 
 Why does it exist?
+------------------
 
 In my work I needed to parse and generate some proprietary binary formats, which were completely undocumented.  I had some C code and some Java code to work from.  In most cases, the C code generated the binary, and the Java code parsed it, so the Java code was somewhat related to the C code, but not completely.  I found both the C and the Java tricky to understand, but persevered and hacked together valid parsers and generators.
 
 I considered my task and thought that I should try not to add a 3rd implementation that's difficult to understand, and less abstractly, where I need to both parse and generate a format, I should try not to repeat the format in the parsing and in the generating code.
 
-So I considered that if one has a Format<T>, he can combine it with a Format<U> to form a Format2<T, U>.  If one has a type V that holds both a T and U, he can combine it with a Format2<T, U> to create a Format<V>.
+So I considered that if one has a Format<T>, he can combine it with a Format&lt;U> to form a Format2<T, U>.  If one has a type V that holds both a T and U, he can combine it with a Format2<T, U> to create a Format<V>.
 
 How do I use it?
+----------------
 
 As an example, we'll consider a Person class.  A person has a String name, String address and Date dateOfBirth.
 A Date has an int year, int month and int day.  Format.string and Format.integer are provided in Binary4J.  We can combine these to produce a Format<Person>.  First let's tackle Format<Date>.
@@ -44,6 +47,7 @@ Format<byte[]> lengthEncodedBytes = Format.integer.bind(Format.byteArray).map(so
 What I especially like about this approach is that each part of it is simple, at whatever scale you look.  It took a LOT of work to make the types readable, so the next section explains how Java could have helped but didn't:
 
 How Java Made This Hard
+-----------------------
 
 It's a shame that I 'need' to have Format2, Format3, etc.  It's a shame I 'need' Tuple3 and Tuple4.  It's a shame I 'need' Function2, Function3, Function4.
 
