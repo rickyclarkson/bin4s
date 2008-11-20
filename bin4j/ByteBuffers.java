@@ -68,7 +68,7 @@ public class ByteBuffers
                 public byte[] unapply(ByteBuffer buffer)
                 {
                     byte[] result = new byte[length];
-                    buffer.put(result);
+                    buffer.get(result);
                     return result;
                 }
             };

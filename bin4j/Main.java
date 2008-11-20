@@ -3,37 +3,34 @@ package bin4j;
 import java.nio.ByteBuffer;
 import static bin4j.Pair.pair;
 import static bin4j.Tuple3.tuple3;
+import static bin4j.ByteBuffers.integer;
 
 class Main
 {
-    public static <T, U, V extends U> Function<T, U> contravariant(final Function<T, V> f)
-    {
-        return new Function<T, U>()
-        {
-            public U apply(T t)
-            {
-                return f.apply(t);
-            }
-        };
-    }
-
     public static void main(String[] args)
     {
         //serialising and deserialising a single integer.
-        equal(ByteBuffers.integer.unapply(ByteBuffers.integer.apply(5)), 5);
+        equal(integer.unapply(integer.apply(5)), 5);
 
         //serialising and deserialising a pair of integers.
-        Format2<Integer, Integer> format = ByteBuffers.integer.andThen(ByteBuffers.integer);
-        equal(format.unapply(format.apply(pair(10, 12))), pair(10, 12));
+        Format2<Integer, Integer> twoInts = integer.andThen(integer);
+        equal(twoInts.unapply(twoInts.apply(10, 12)), pair(10, 12));
 
-        //serialising and deserialising a length-encoded sequence of bytes.
-        Format2<Integer, byte[]> lengthEncodedBytes = ByteBuffers.integer.bind(ByteBuffers.byteArray);
-        ByteBuffer buffer = lengthEncodedBytes.apply(pair(3, new byte[]{10, 20, 30}));
-        buffer.position(0);
-        equal(buffer.getInt(), 3);
-        equal(buffer.get(), (byte)10);
-        equal(buffer.get(), (byte)20);
-        equal(buffer.get(), (byte)30);
+        //serialising and deserialising a length-encoded sequence of bytes.  The call to map just makes the Integer disappear from the resulting Format type.
+        Format<byte[]> lengthEncodedBytes = ByteBuffers.integer.bind(ByteBuffers.byteArray).map(new ExpFunctor2<Integer, byte[], byte[]>()
+        {
+            public byte[] apply(Integer length, byte[] array)
+            {
+                return array;
+            }
+            
+            public Pair<Integer, byte[]> unapply(byte[] array)
+            {
+                return pair(array.length, array);
+            }
+        });
+
+        equal(lengthEncodedBytes.unapply(lengthEncodedBytes.apply(new byte[]{1,3,5,7,9}))[3], (byte)7);
 
         //serialising and deserialising a custom data structure.
         Person person = new Person("Bob", "Hope Lane", new Date(1976, 2, 22));
@@ -46,18 +43,18 @@ class Main
         Format<Pair<byte[], byte[]>> twoByteArrays =
             ByteBuffers.integer.andThen(ByteBuffers.integer).bind(new Function2<Integer, Integer, Format<Pair<byte[], byte[]>>>()
             {
-                public Format<Pair<byte[], byte[]>> apply(final Integer firstLength, final Integer secondLength)
+                public Format2<byte[], byte[]> apply(final Integer firstLength, final Integer secondLength)
                 {
-                    return new Format<Pair<byte[], byte[]>>()
+                    return new Format2<byte[], byte[]>()
                     {
-                        public ByteBuffer apply(Pair<byte[], byte[]> pair)
+                        public ByteBuffer apply(byte[] first, byte[] second)
                         {
-                            if (pair._1.length != firstLength || pair._2.length != secondLength)
+                            if (first.length != firstLength || second.length != secondLength)
                                 throw null;
 
                             ByteBuffer b = ByteBuffer.allocate(firstLength + secondLength);
-                            b.put(pair._1);
-                            b.put(pair._2);
+                            b.put(first);
+                            b.put(second);
                             b.position(0);
                             return b;
                         }
