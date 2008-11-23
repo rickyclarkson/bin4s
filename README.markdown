@@ -21,11 +21,11 @@ A Date has an int year, int month and int day.  Format.string and Format.integer
 Format.integer.andThen(Format.integer) returns a Format2&lt;Integer, Integer&gt;.  But Date has 3 ints..
 Format.integer.andThen(Format.integer).andThen(Format.integer) returns a Format3&lt;Integer, Integer, Integer&gt;.  Handy, but not quite a Format&lt;Date&gt;.  To make a Format&lt;Date&gt; from it we need to tell Binary4J about a way of converting between 3 Integers and Dates, in both directions (consider that a Format can read and write).  Luckily a Format3 has a map method that takes an XFunction3, which describes these conversions.
 
-    Format&lt;Date&gt; dateFormat = Format.integer.andThen(Format.integer).andThen(Format.integer).map(Date.xFunction);
+    Format<Date> dateFormat = Format.integer.andThen(Format.integer).andThen(Format.integer).map(Date.xFunction);
 
 So similarly we can combine this with Format.string to create a Format&lt;Person&gt;:
 
-    Format&lt;Person&gt; personFormat = Format.person.andThen(Format.person).andThen(dateFormat).andThen(dateFormat).map(Format.xFunction);
+    Format<Person> personFormat = Format.person.andThen(Format.person).andThen(dateFormat).andThen(dateFormat).map(Format.xFunction);
 
 Then to get a ByteBuffer containing that data, we can say: ByteBuffer personData = personFormat.apply(somePerson);
 To read a ByteBuffer into a Person we can say: Person person = personFormat.unapply(buffer);
@@ -34,7 +34,7 @@ For this particular case, it's possible that the actual number of lines has incr
 
 A more realistic example, perhaps, is a block of bytes preceded by its length as an int.
 
-    Format2&lt;Integer, byte[]&gt; lengthEncodedBytes = Format.integer.bind(Format.byteArray);
+    Format2<Integer, byte[]> lengthEncodedBytes = Format.integer.bind(Format.byteArray);
 
 Unfortunately to use lengthEncodedBytes, we have to pass in the length separately to the array, so typical uses would look like:
 
@@ -42,7 +42,7 @@ Unfortunately to use lengthEncodedBytes, we have to pass in the length separatel
 
 Clearly it would be better if we could make this a Format&lt;byte[]&gt;.  Luckily we can, by providing an XFunction2 describing the conversion from a byte[] to a Integer-byte[] pair, and vice-versa.
 
-    Format&lt;byte[]&gt; lengthEncodedBytes = Format.integer.bind(Format.byteArray).map(someXFunction2);
+    Format<byte[]> lengthEncodedBytes = Format.integer.bind(Format.byteArray).map(someXFunction2);
 
 What I especially like about this approach is that each part of it is simple, at whatever scale you look.  It took a LOT of work to make the types readable, so the next section explains how Java could have helped but didn't:
 
