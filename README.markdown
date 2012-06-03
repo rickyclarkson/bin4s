@@ -25,7 +25,7 @@ in both directions (consider that a Format can read and write).  Luckily a Forma
 
     val dateFormat: Format[Date] = Format.integer andThen Format.integer andThen Format.integer map Date.xFunction
 
-So similarly we can combine this with Format.string to create a Format&lt;Person&gt;:
+So similarly we can combine this with Format.string to create a Format[Person]:
 
     val personFormat: Format[Person] = Format.string andThen Format.string andThen dateFormat map Person.xFunction
 
