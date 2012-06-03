@@ -3,6 +3,9 @@
     <groupId>org.bin4s</groupId>
     <artifactId>bin4s</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <scm>
+        <developerUrl>https://rickyclarkson@github.com/rickyclarkson/bin4s.git</developerUrl>
+    </scm>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
