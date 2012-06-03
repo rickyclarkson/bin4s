@@ -4,21 +4,21 @@ import java.nio.ByteBuffer
 import java.io.UnsupportedEncodingException
 
 abstract class Format[T] extends XFunction[T, ByteBuffer] {
-  def andThen[U](other: Format[U]): Format[Pair[T, U]] = new Format[Pair[T, U]] {
-    def apply(tu: Pair[T, U]): ByteBuffer = ByteBuffers.sequence(Format.this.apply(tu._1), other.apply(tu._2))
-    def unapply(b: ByteBuffer): Pair[T, U] = Pair.pair(Format.this.unapply(b), other.unapply(b))
+  def andThen[U](other: Format[U]): Format[(T, U)] = new Format[(T, U)] {
+    def apply(tu: (T, U)): ByteBuffer = tu match { case (t, u) => ByteBuffers.sequence(Format.this.apply(t), other.apply(u)) }
+    def unapply(b: ByteBuffer): (T, U) = (Format.this.unapply(b), other.unapply(b))
   }
 
-  def bind[U](uf: Function[T, Format[U]]): Format[Pair[T, U]] = new Format[Pair[T, U]] {
-    def apply(tu: Pair[T, U]): ByteBuffer = {
+  def bind[U](uf: Function[T, Format[U]]): Format[(T, U)] = new Format[(T, U)] {
+    def apply(tu: (T, U)): ByteBuffer = {
       val fu: Format[U] = uf.apply(tu._1)
       ByteBuffers.sequence(Format.this.apply(tu._1), fu.apply(tu._2))
     }
 
-    def unapply(b: ByteBuffer): Pair[T, U] = {
+    def unapply(b: ByteBuffer): (T, U) = {
       val t: T = Format.this.unapply(b)
       val fu: Format[U] = uf.apply(t)
-      Pair.pair(t, fu.unapply(b))
+      (t, fu.unapply(b))
     }
   }
 
