@@ -4,7 +4,7 @@
     <artifactId>bin4s</artifactId>
     <version>1.0-SNAPSHOT</version>
     <scm>
-        <developerConnection>scm:git:https://rickyclarkson@github.com/rickyclarkson/bin4s.git</developerConnection>
+        <developerConnection>scm:git:ssh://git@github/rickyclarkson/bin4s.git</developerConnection>
     </scm>
     <dependencies>
         <dependency>
