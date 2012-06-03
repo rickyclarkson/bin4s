@@ -17,8 +17,8 @@ final class Binary4JTest {
   }
 
   @Test def lengthEncodedBytes() {
-    val lengthEncodedBytes: Format[Array[Byte]] = ByteBuffers.integer.bind(ByteBuffers.byteArray).map(new XFunction2[Integer, Array[Byte], Array[Byte]] {
-      def apply(length: Integer, array: Array[Byte]): Array[Byte] = array
+    val lengthEncodedBytes: Format[Array[Byte]] = ByteBuffers.integer.bind(ByteBuffers.byteArray).map(new XFunction[Pair[Integer, Array[Byte]], Array[Byte]] {
+      def apply(lengthArray: Pair[Integer, Array[Byte]]): Array[Byte] = lengthArray._2
 
       def unapply(array: Array[Byte]): Pair[Integer, Array[Byte]] = Pair.pair(array.length, array)
     })
