@@ -1,6 +1,4 @@
-package bin4j;
-
-import static bin4j.Pair.pair;
+package org.binary4j;
 
 public abstract class XFunction2<A, B, R> implements XFunction<Pair<A, B>, R>
 {

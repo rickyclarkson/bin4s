@@ -8,7 +8,7 @@ Why does it exist?
 
 In my work I needed to parse and generate some proprietary binary formats, which were completely undocumented.  I had some C code that generated them and some Java that parsed them.  I found both the C and the Java tricky to understand, but persevered and hacked together valid parsers and generators.
 
-I thought that I should try not to add a 3rd implementation that's difficult to understand, and I should try not to repeat the format in both the parsing and generating code.  So I came up with binary4j.  Here's the main principle:
+I thought that I should try not to add a 3rd implementation that's difficult to understand, and I should try not to repeat the format in both the parsing and generating code.  So I came up with org.binary4j.  Here's the main principle:
 
 If you have a Format&lt;T&gt; (which can read and write Ts), you can combine it with a Format&lt;U&gt; to form a Format2&lt;T, U&gt;.  Obviously combining a few gets unwieldy and lacks information about what each type parameter means, so you can describe how to get from a T and a U to a V, and back again, to create a Format&lt;V&gt;.  There are some less abstract examples of this in the next section.
 
@@ -58,8 +58,8 @@ If Java had type inference, then sometimes Format&lt;Pair&lt;Pair&lt;X, Y&gt;, Z
     var threeInts = Format.integer.andThen(Format.integer).andThen(Format.integer);
     var dateFormat = threeInts.map(Date.xFunction);
 
-As it is, a user of binary4j is 'punished' for introducing an explaining variable like threeInts above, though binary4j takes great effort to minimise that (using Format3 instead of Format&lt;Pair&lt;Pair..&gt;&gt;.
+As it is, a user of org.binary4j is 'punished' for introducing an explaining variable like threeInts above, though org.binary4j takes great effort to minimise that (using Format3 instead of Format&lt;Pair&lt;Pair..&gt;&gt;.
 
 If Java had support for closures, then the xFunction implementations could have been much much simpler.  In fact, XFunction might not even exist, as it just represents a tuple of (X =&gt; Y, Y =&gt; X).
 
-If you are using binary4j, please let me know, and I'll do what I can to help you.  Other than that, it will evolve as and when I use it, which might be daily or never.
+If you are using org.binary4j, please let me know, and I'll do what I can to help you.  Other than that, it will evolve as and when I use it, which might be daily or never.

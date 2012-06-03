@@ -1,4 +1,4 @@
-package bin4j;
+package org.binary4j;
 
 abstract class Function2<T, U, R> extends Function<Pair<T, U>, R>
 {

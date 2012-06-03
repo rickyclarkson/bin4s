@@ -1,4 +1,4 @@
-package bin4j;
+package org.binary4j;
 
 public abstract class Function<T, R>
 {

@@ -1,8 +1,7 @@
-package bin4j;
+package org.binary4j;
 
 import java.nio.ByteBuffer;
 
-import static bin4j.Pair.pair;
 import java.io.UnsupportedEncodingException;
 
 public abstract class Format<T> implements XFunction<T, ByteBuffer>
@@ -54,7 +53,7 @@ public abstract class Format<T> implements XFunction<T, ByteBuffer>
 
             public Pair<T, U> unapply(ByteBuffer b)
             {
-                return pair(Format.this.unapply(b), other.unapply(b));
+                return Pair.pair(Format.this.unapply(b), other.unapply(b));
             }
         };
     }
@@ -73,7 +72,7 @@ public abstract class Format<T> implements XFunction<T, ByteBuffer>
             {
                 T t = Format.this.unapply(b);
                 Format<U> fu = uf.apply(t);
-                return pair(t, fu.unapply(b));
+                return Pair.pair(t, fu.unapply(b));
             }                
         };
     }

@@ -1,4 +1,4 @@
-package bin4j;
+package org.binary4j;
 
 public final class Tuple4<A, B, C, D>
 {

@@ -1,4 +1,4 @@
-package bin4j;
+package org.binary4j;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
