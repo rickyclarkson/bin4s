@@ -1,4 +1,4 @@
-package org.binary4j
+package org.bin4s
 
 case class Person(name: String, address: String, dateOfBirth: Date)
 

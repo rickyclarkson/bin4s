@@ -1,4 +1,4 @@
-package org.binary4j
+package org.bin4s
 
 trait XFunction[T, R] {
   def apply(t: T): R

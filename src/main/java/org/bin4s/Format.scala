@@ -1,4 +1,4 @@
-package org.binary4j
+package org.bin4s
 
 import java.nio.ByteBuffer
 import java.io.UnsupportedEncodingException

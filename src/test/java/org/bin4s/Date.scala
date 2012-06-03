@@ -1,4 +1,4 @@
-package org.binary4j
+package org.bin4s
 
 case class Date(year: Int, month: Int, day: Int)
 

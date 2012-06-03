@@ -1,4 +1,4 @@
-package org.binary4j
+package org.bin4s
 
 import org.junit.Test
 import org.junit.Assert.assertEquals
