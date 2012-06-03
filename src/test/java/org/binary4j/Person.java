@@ -13,16 +13,16 @@ final class Person
         this.dateOfBirth=dateOfBirth;
     }
 
-    static XFunction3<String, String, Date, Person> xmap = new XFunction3<String, String, Date, Person>()
+    static XFunction<Pair<Pair<String, String>, Date>, Person> xmap = new XFunction<Pair<Pair<String, String>, Date>, Person>()
     {
-        public Person apply(String name, String address, Date dateOfBirth)
+        public Person apply(Pair<Pair<String, String>, Date> nameAddressDateOfBirth)
         {
-            return new Person(name, address, dateOfBirth);
+            return new Person(nameAddressDateOfBirth._1._1, nameAddressDateOfBirth._1._2, nameAddressDateOfBirth._2);
         }
 
-        public Tuple3<String, String, Date> unapply3(Person person)
-        {
-            return Tuple3.tuple3(person.name, person.address, person.dateOfBirth);
+        @Override
+        public Pair<Pair<String, String>, Date> unapply(Person person) {
+            return Pair.pair(Pair.pair(person.name, person.address), person.dateOfBirth);
         }
     };
 

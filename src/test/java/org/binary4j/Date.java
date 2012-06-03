@@ -13,16 +13,16 @@ class Date
         this.day= day;
     }
 
-    static XFunction3<Integer, Integer, Integer, Date> xmap = new XFunction3<Integer, Integer, Integer, Date>()
+    static XFunction<Pair<Pair<Integer, Integer>, Integer>, Date> xmap = new XFunction<Pair<Pair<Integer, Integer>, Integer>, Date>()
     {
-        public Date apply(Integer year, Integer month, Integer day)
-        {
-            return new Date(year, month, day);
+        @Override
+        public Date apply(Pair<Pair<Integer, Integer>, Integer> yearMonthDay) {
+            return new Date(yearMonthDay._1._1, yearMonthDay._1._2, yearMonthDay._2);
         }
 
-        public Tuple3<Integer, Integer, Integer> unapply3(Date date)
-        {
-            return Tuple3.tuple3(date.year, date.month, date.day);
+        @Override
+        public Pair<Pair<Integer, Integer>, Integer> unapply(Date date) {
+            return Pair.pair(Pair.pair(date.year, date.month), date.day);
         }
     };
 
