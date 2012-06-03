@@ -3,7 +3,7 @@ package org.binary4j
 import org.junit.Test
 import org.junit.Assert.assertEquals
 
-import java.lang.{Character, Integer}
+import java.lang.Integer
 
 final class Binary4JTest {
   @Test def singleInteger() {
@@ -12,19 +12,15 @@ final class Binary4JTest {
   }
 
   @Test def pairOfIntegers() {
-    val twoInts: Format2[Integer, Integer] = ByteBuffers.integer.andThen(ByteBuffers.integer)
-    assertEquals(Pair.pair(10, 12), twoInts.unapply(twoInts.apply(10, 12)))
+    val twoInts: Format[Pair[Integer, Integer]] = ByteBuffers.integer.andThen(ByteBuffers.integer)
+    assertEquals(Pair.pair(10, 12), twoInts.unapply(twoInts.apply(Pair.pair(10, 12))))
   }
 
   @Test def lengthEncodedBytes() {
     val lengthEncodedBytes: Format[Array[Byte]] = ByteBuffers.integer.bind(ByteBuffers.byteArray).map(new XFunction2[Integer, Array[Byte], Array[Byte]] {
-      def apply(length: Integer, array: Array[Byte]): Array[Byte] = {
-        return array
-      }
+      def apply(length: Integer, array: Array[Byte]): Array[Byte] = array
 
-      def unapply(array: Array[Byte]): Pair[Integer, Array[Byte]] = {
-        return Pair.pair(array.length, array)
-      }
+      def unapply(array: Array[Byte]): Pair[Integer, Array[Byte]] = Pair.pair(array.length, array)
     })
     assertEquals(7, lengthEncodedBytes.unapply(lengthEncodedBytes.apply(Array[Byte](1, 3, 5, 7, 9)))(3))
   }
