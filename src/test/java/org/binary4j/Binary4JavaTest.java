@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public final class Binary4JTest
+public final class Binary4JavaTest
 {
     @Test
     public void singleInteger() {
