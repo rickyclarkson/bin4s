@@ -8,7 +8,7 @@ Why does it exist?
 
 In my work I needed to parse and generate some proprietary binary formats, which were completely undocumented.  I had some C code that generated them and some Java that parsed them.  I found both the C and the Java tricky to understand, but persevered and hacked together valid parsers and generators.
 
-I thought that I should try not to add a 3rd implementation that's difficult to understand, and I should try not to repeat the format in both the parsing and generating code.  So I came up with org.binary4scala.  Here's the main principle:
+I thought that I should try not to add a 3rd implementation that's difficult to understand, and I should try not to repeat the format in both the parsing and generating code.  So I came up with bin4s.  Here's the main principle:
 
 If you have a Format[T] (which can read and write Ts), you can combine it with a Format[U] to form a Format[(T, U)].  Obviously combining a few gets unwieldy and lacks information about what each type parameter means, so you can describe how to get from a T and a U to a V, and back again, to create a Format[V].  There are some less abstract examples of this in the next section.
 
