@@ -14,7 +14,7 @@ object ByteBuffers {
     result
   }
 
-  var integer: Format[Integer] = new Format[Integer] {
+  val integer: Format[Integer] = new Format[Integer] {
     def apply(i: Integer): ByteBuffer = {
       val b: ByteBuffer = ByteBuffer.allocate(4)
       b.putInt(i)
@@ -24,7 +24,8 @@ object ByteBuffers {
 
     def unapply(b: ByteBuffer): Integer = b.getInt
   }
-  var littleEndianShort: Format[Short] = new Format[Short] {
+
+  val littleEndianShort: Format[Short] = new Format[Short] {
     def apply(s: Short): ByteBuffer = {
       val b: ByteBuffer = ByteBuffer.allocate(2)
       b.order(ByteOrder.LITTLE_ENDIAN)
@@ -42,26 +43,21 @@ object ByteBuffers {
       s
     }
   }
-  var wrap: Function[Array[Byte], ByteBuffer] = new Function[Array[Byte], ByteBuffer] {
-    def apply(b: Array[Byte]): ByteBuffer = ByteBuffer.wrap(b)
-  }
-  var byteArray: Function[Integer, Format[Array[Byte]]] = new Function[Integer, Format[Array[Byte]]] {
-    def apply(length: Integer): Format[Array[Byte]] = {
-      new Format[Array[Byte]] {
-        def apply(array: Array[Byte]): ByteBuffer = {
-          if (array.length != length) throw null
-          ByteBuffer.wrap(array)
-        }
 
-        def unapply(buffer: ByteBuffer): Array[Byte] = {
-          val result: Array[Byte] = new Array[Byte](length)
-          buffer.get(result)
-          result
-        }
-      }
+  val wrap: Array[Byte] => ByteBuffer = b => ByteBuffer.wrap(b)
+
+  val byteArray: Integer => Format[Array[Byte]] = length => new Format[Array[Byte]] {
+    def apply(array: Array[Byte]): ByteBuffer = {
+      if (array.length != length) throw null
+      ByteBuffer.wrap(array)
+    }
+
+    def unapply(buffer: ByteBuffer): Array[Byte] = {
+      val result: Array[Byte] = new Array[Byte](length)
+      buffer.get(result)
+      result
     }
   }
-  var array: Function[ByteBuffer, Array[Byte]] = new Function[ByteBuffer, Array[Byte]] {
-    def apply(b: ByteBuffer): Array[Byte] = b.array
-  }
+
+  val array: ByteBuffer => Array[Byte] = _.array
 }

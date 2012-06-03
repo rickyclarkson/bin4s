@@ -9,7 +9,7 @@ abstract class Format[T] extends XFunction[T, ByteBuffer] {
     def unapply(b: ByteBuffer): (T, U) = (Format.this.unapply(b), other.unapply(b))
   }
 
-  def bind[U](uf: Function[T, Format[U]]): Format[(T, U)] = new Format[(T, U)] {
+  def bind[U](uf: T => Format[U]): Format[(T, U)] = new Format[(T, U)] {
     def apply(tu: (T, U)): ByteBuffer = {
       val fu: Format[U] = uf.apply(tu._1)
       ByteBuffers.sequence(Format.this.apply(tu._1), fu.apply(tu._2))
