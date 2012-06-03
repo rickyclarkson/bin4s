@@ -3,8 +3,6 @@ package org.binary4j
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-import java.lang.Integer
-
 object ByteBuffers {
   def sequence(a: ByteBuffer, b: ByteBuffer): ByteBuffer = {
     val result: ByteBuffer = ByteBuffer.allocate(a.limit + b.limit)
@@ -14,19 +12,19 @@ object ByteBuffers {
     result
   }
 
-  val integer: Format[Integer] = new Format[Integer] {
-    def apply(i: Integer): ByteBuffer = {
+  val integer: Format[Int] = new Format[Int] {
+    override def apply(i: Int) = {
       val b: ByteBuffer = ByteBuffer.allocate(4)
       b.putInt(i)
       b.position(0)
       b
     }
 
-    def unapply(b: ByteBuffer): Integer = b.getInt
+    override def unapply(b: ByteBuffer) = b.getInt
   }
 
   val littleEndianShort: Format[Short] = new Format[Short] {
-    def apply(s: Short): ByteBuffer = {
+    override def apply(s: Short) = {
       val b: ByteBuffer = ByteBuffer.allocate(2)
       b.order(ByteOrder.LITTLE_ENDIAN)
       b.putShort(s)
@@ -35,7 +33,7 @@ object ByteBuffers {
       b
     }
 
-    def unapply(b: ByteBuffer): Short = {
+    override def unapply(b: ByteBuffer) = {
       val order: ByteOrder = b.order
       b.order(ByteOrder.LITTLE_ENDIAN)
       val s: Short = b.getShort
@@ -46,7 +44,7 @@ object ByteBuffers {
 
   val wrap: Array[Byte] => ByteBuffer = b => ByteBuffer.wrap(b)
 
-  val byteArray: Integer => Format[Array[Byte]] = length => new Format[Array[Byte]] {
+  val byteArray: Int => Format[Array[Byte]] = length => new Format[Array[Byte]] {
     def apply(array: Array[Byte]): ByteBuffer = {
       if (array.length != length) throw null
       ByteBuffer.wrap(array)
